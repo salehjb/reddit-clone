@@ -91,7 +91,7 @@ model Post {
   authorId String
 
   comments Comment[]
-  votes     Vote[]
+  votes    Vote[]
 }
 
 model Comment {
@@ -103,7 +103,7 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
   postId    String   @db.ObjectId
 
-  replyToId String?
+  replyToId String?   @db.ObjectId
   replyTo   Comment?  @relation("ReplayTo", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   replies   Comment[] @relation("ReplayTo")
 

@@ -37,8 +37,6 @@ const Layout = async ({
 
   const isSubscribed = !!subscription;
 
-  console.log(isSubscribed);
-
   if (!subreddit) return notFound();
 
   const memberCount = await db.subscription.count({
