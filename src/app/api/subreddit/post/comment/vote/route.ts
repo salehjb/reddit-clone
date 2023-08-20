@@ -1,6 +1,6 @@
 import { getAuthSession } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { PostVoteValidator } from "@/lib/validators/vote";
+import { CommentVoteValidator } from "@/lib/validators/vote";
 import { z } from "zod";
 
 export async function PATCH(req: Request) {
@@ -12,55 +12,40 @@ export async function PATCH(req: Request) {
     }
 
     const body = await req.json();
-    const { postId, voteType } = PostVoteValidator.parse(body);
+    const { commentId, voteType } = CommentVoteValidator.parse(body);
 
-    const existingVote = await db.vote.findFirst({
+    const existingVote = await db.commentVote.findFirst({
       where: {
         userId: session.user.id,
-        postId,
+        commentId,
       },
     });
-
-    const post = await db.post.findUnique({
-      where: {
-        id: postId,
-      },
-      include: {
-        author: true,
-        votes: true,
-      },
-    });
-
-    if (!post) {
-      return new Response("Post not found", { status: 404 });
-    }
 
     if (existingVote) {
       if (existingVote.type === voteType) {
-        await db.vote.delete({
+        await db.commentVote.delete({
           where: {
-            id: existingVote.id,
+            id: commentId,
           },
         });
       } else {
         await db.vote.update({
           where: {
-            id: existingVote.id,
+            id: commentId,
           },
           data: {
             type: voteType,
           },
         });
       }
-
       return new Response("OK");
     }
 
-    await db.vote.create({
+    await db.commentVote.create({
       data: {
         type: voteType,
         userId: session.user.id,
-        postId,
+        commentId,
       },
     });
 
